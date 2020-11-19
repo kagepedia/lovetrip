@@ -1,0 +1,38 @@
+version: "3"
+
+services:
+  frontend:
+    build: ./frontend
+    environment:
+      - NEXT_HOST=0.0.0.0
+    ports:
+      - 8080:3000
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/.next
+    command: npm run dev
+
+  backend:
+    build: ./backend
+    ports:
+      - 8888:8888
+    volumes:
+      - ./backend:/go/src/github.com/kagepedia/go-next-pj/backend
+    depends_on:
+      - db
+
+  db:
+    build: ./db
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db/sql:/docker-entrypoint-initdb.d
+      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./db/data:/var/lib/mysql
+    environment:
+      # MYSQL_DATABASE: sample_db
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    command: --innodb-use-native-aio=0
